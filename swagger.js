@@ -12,6 +12,7 @@ const swaggerOptions = {
     },
     servers: [
       { url: 'http://localhost:3000', description: 'Servidor local' },
+      { url: 'https://my-public-api-for-tests-production.up.railway.app', description: 'Servidor na Railway (Produção)' },
     ],
     components: {
       securitySchemes: {
