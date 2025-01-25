@@ -1,15 +1,19 @@
-const { Client } = require('pg');
+require('dotenv').config();
+const { Pool } = require('pg');
 
-// Conexão com o PostgreSQL usando as variáveis de ambiente
-const client = new Client({
-  connectionString: process.env.DATABASE_URL, // Usando a URL de conexão do Railway
-  ssl: {
-    rejectUnauthorized: false, // Necessário para conexões seguras
-  },
+const isProduction = process.env.NODE_ENV === 'production';
+
+const pool = new Pool({
+  host: isProduction ? process.env.DB_PROD_HOST : process.env.DB_LOCAL_HOST,
+  port: isProduction ? process.env.DB_PROD_PORT : process.env.DB_LOCAL_PORT,
+  database: isProduction ? process.env.DB_PROD_NAME : process.env.DB_LOCAL_NAME,
+  user: isProduction ? process.env.DB_PROD_USER : process.env.DB_LOCAL_USER,
+  password: isProduction ? process.env.DB_PROD_PASSWORD : process.env.DB_LOCAL_PASSWORD,
+  ssl: isProduction ? { rejectUnauthorized: false } : false, // Adicione isso para evitar problemas com SSL no Railway
 });
 
-client.connect()
+pool.connect()
   .then(() => console.log('Conectado ao PostgreSQL!'))
   .catch((err) => console.error('Erro ao conectar ao PostgreSQL', err.stack));
 
-module.exports = client;
+module.exports = pool;
