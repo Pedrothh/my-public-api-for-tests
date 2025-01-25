@@ -33,6 +33,20 @@ const SECRET = process.env.JWT_SECRET; // Substitua por uma variável de ambient
  *     responses:
  *       201:
  *         description: Usuário registrado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     username:
+ *                       type: string
  *       400:
  *         description: Usuário já existe
  *       500:
@@ -44,19 +58,39 @@ router.post('/register', async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    // Verifica se o usuário já existe
-    const userExists = await db.query('SELECT * FROM users WHERE username = $1', [username]);
-    if (userExists.rows.length > 0) {
-      return res.status(400).json({ message: 'Usuário já existe' });
+    // Validação do username
+    if (!username || typeof username !== 'string' || username.trim() === '') {
+      return res.status(400).json({ message: 'O nome de usuário é obrigatório e deve ser uma string válida.' });
     }
 
-    // Criptografa a senha
+    // Validação do password
+    if (!password || typeof password !== 'string' || password.trim().length < 4) {
+      return res.status(400).json({ 
+        message: 'A senha é obrigatória, deve ser uma string e conter no mínimo 4 caracteres.' 
+      });
+    }
+
+    // Verifica se o usuário já existe
+    const userExists = await db.query('SELECT username FROM users WHERE username = $1', [username]);
+    if (userExists.rows.length > 0) {
+      const { username: existingUsername } = userExists.rows[0];
+      return res.status(400).json({ message: `Usuário '${existingUsername}' já existe.` });
+    }
+
+    // Hash da senha
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Salva o usuário no banco
-    await db.query('INSERT INTO users (username, password) VALUES ($1, $2)', [username, hashedPassword]);
+    const newUser = await db.query(
+      'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id, username',
+      [username, hashedPassword]
+    );
 
-    res.status(201).json({ message: 'Usuário registrado com sucesso' });
+    // Retorna o usuário criado
+    res.status(201).json({ 
+      message: 'Usuário registrado com sucesso.', 
+      user: { id: newUser.rows[0].id, username: newUser.rows[0].username } 
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Erro no servidor' });
