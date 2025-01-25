@@ -1,7 +1,9 @@
 require('dotenv').config(); // Carrega as variáveis de ambiente do arquivo .env
 const express = require('express');
 const { swaggerUi, swaggerDocs } = require('./swagger');
-const protectedRoutes = require('./routes/protected');
+const usersRoutes = require('./routes/users');
+const usersInfoRoutes = require('./routes/userInfo');
+
 const authRoutes = require('./routes/auth');  // Importando as rotas de autenticação
 
 const app = express();
@@ -16,7 +18,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use('/api', authRoutes);
 
 // Rotas protegidas
-app.use('/api', protectedRoutes);
+app.use('/api', usersRoutes);
+
+app.use('/api', usersInfoRoutes);
 
 // Rota de exemplo
 app.get('/', (req, res) => {
