@@ -2,7 +2,9 @@ require('dotenv').config();
 const { Pool } = require('pg');
 
 const isProduction = process.env.NODE_ENV === 'production';
-const connectionString = process.env.DATABASE_URL;
+const connectionString = isProduction 
+  ? process.env.DATABASE_URL 
+  : process.env.DATABASE_URL_DEV;
 
 const pool = new Pool({
     connectionString,
@@ -10,7 +12,11 @@ const pool = new Pool({
 });
 
 pool.connect()
-  .then(() => console.log('Conectado ao PostgreSQL!'))
+  .then(() => {
+    isProduction 
+    ? console.log('Conectado ao PostgreSQL Produção!')
+    : console.log('Conectado ao PostgreSQL Desenvolvimento!')
+  })
   .catch((err) => console.error('Erro ao conectar ao PostgreSQL', err.stack));
 
 module.exports = pool;
