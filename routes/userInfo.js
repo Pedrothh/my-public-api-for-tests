@@ -12,7 +12,7 @@ const db = require('../db'); // Importa a conexão com o banco
 
 /**
  * @swagger
- * /api/user-info:
+ * /user-info:
  *   get:
  *     summary: Retorna informações do usuário autenticado.
  *     tags: [Users]

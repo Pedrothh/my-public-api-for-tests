@@ -14,7 +14,7 @@ const bcrypt = require('bcrypt');
 
 /**
  * @swagger
- * /api/users:
+ * /users:
  *   get:
  *     summary: Retorna usuários.
  *     tags: [Users]
@@ -77,5 +77,90 @@ router.get('/users', authenticate, async (req, res) => {
       res.status(500).json({ message: 'Erro ao buscar usuários.' });
     }
   });
+
+
+/**
+ * @swagger
+ * /user:
+ *   delete:
+ *     summary: Inativar a conta do usuário
+ *     description: Realiza a deleção lógica da conta do usuário autenticado, marcando a coluna "deletado" como 1.
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         required: true
+ *         schema:
+ *           type: string
+ *           description: Token JWT do usuário autenticado
+ *     responses:
+ *       200:
+ *         description: Conta inativada com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Conta inativada.
+ *       400:
+ *         description: Solicitação inválida
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Erro ao inativar usuário
+ *       404:
+ *         description: Usuário não encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Usuário não encontrado
+ *       500:
+ *         description: Erro no servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Erro ao inativar usuário
+ */
+
+router.delete('/user', authenticate, async (req, res) => {
+  const userId = req.user.id; // Supondo que o middleware de autenticação decodifique o ID do usuário no token
+
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+
+    // Atualizando a coluna "deletado" para 1 (deleção lógica)
+    await user.update({ 
+      deletado: 1,
+      updatedAt: new Date() // Atualiza a data de modificação
+    });
+    res.status(200).json({ message: 'Conta inativada.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erro ao inativar usuário' });
+  }
+});
+
+  
+  
 
 module.exports = router;

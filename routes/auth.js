@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const db = require('../db'); // Importa a conexão com o banco
 const authenticate = require('../middleware/authenticate'); // Caminho para o middleware
-
+const { User } = require('../models'); // Importando o modelo User
 const router = express.Router();
 const SECRET = process.env.JWT_SECRET; // Substitua por uma variável de ambiente em produção
 
@@ -16,7 +16,7 @@ const SECRET = process.env.JWT_SECRET; // Substitua por uma variável de ambient
 
 /**
  * @swagger
- * /api/register:
+ * /register:
  *   post:
  *     summary: Registrar um novo usuário
  *     tags: [Auth]
@@ -72,25 +72,25 @@ router.post('/register', async (req, res) => {
     }
 
     // Verifica se o usuário já existe
-    const userExists = await db.query('SELECT username FROM users WHERE username = $1', [username]);
-    if (userExists.rows.length > 0) {
-      const { username: existingUsername } = userExists.rows[0];
-      return res.status(400).json({ message: `Usuário '${existingUsername}' já existe.` });
+    const userExists = await User.findOne({ where: { username } });
+    if (userExists) {
+      return res.status(400).json({ message: `Usuário '${username}' já existe.` });
     }
 
     // Hash da senha
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Salva o usuário no banco
-    const newUser = await db.query(
-      'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id, username',
-      [username, hashedPassword]
-    );
+    // Cria o usuário no banco com o modelo User
+    const newUser = await User.create({
+      username,
+      password: hashedPassword,
+      deletado: 0, // Usuário não deletado ao ser criado
+    });
 
     // Retorna o usuário criado
-    res.status(201).json({ 
-      message: 'Usuário registrado com sucesso.', 
-      user: { id: newUser.rows[0].id, username: newUser.rows[0].username } 
+    res.status(201).json({
+      message: 'Usuário registrado com sucesso.',
+      user: { id: newUser.id, username: newUser.username },
     });
   } catch (err) {
     console.error(err);
@@ -100,7 +100,7 @@ router.post('/register', async (req, res) => {
 
 /**
  * @swagger
- * /api/login:
+ * /login:
  *   post:
  *     summary: Login de usuário
  *     tags: [Auth]
@@ -161,7 +161,7 @@ router.post('/login', async (req, res) => {
   
 /**
  * @swagger
- * /api/update-password:
+ * /update-password:
  *   put:
  *     summary: Atualiza a senha do usuário autenticado.
  *     tags: [Auth]
@@ -208,17 +208,15 @@ router.put('/update-password', authenticate, async (req, res) => {
       return res.status(400).json({ message: 'A nova senha deve ser uma string com pelo menos 4 caracteres.' });
     }
 
-    // Busca o usuário no banco de dados
-    const user = await db.query('SELECT password FROM users WHERE id = $1', [userId]);
+    // Busca o usuário no banco de dados usando o Sequelize
+    const user = await User.findByPk(userId);
 
-    if (user.rows.length === 0) {
+    if (!user) {
       return res.status(404).json({ message: 'Usuário não encontrado.' });
     }
 
-    const hashedPassword = user.rows[0].password;
-
     // Verifica se a senha atual está correta
-    const isMatch = await bcrypt.compare(currentPassword, hashedPassword);
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'A senha atual está incorreta.' });
     }
@@ -227,7 +225,8 @@ router.put('/update-password', authenticate, async (req, res) => {
     const newHashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Atualiza a senha no banco de dados
-    await db.query('UPDATE users SET password = $1 WHERE id = $2', [newHashedPassword, userId]);
+    user.password = newHashedPassword;
+    await user.save(); // Atualiza a instância no banco de dados
 
     res.status(200).json({ message: 'Senha atualizada com sucesso.' });
   } catch (err) {
