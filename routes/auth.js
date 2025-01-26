@@ -84,7 +84,7 @@ router.post('/register', async (req, res) => {
     const newUser = await User.create({
       username,
       password: hashedPassword,
-      deletado: 0, // Usuário não deletado ao ser criado
+      inativo: 0, // Usuário não inativo ao ser criado
     });
 
     // Retorna o usuário criado
@@ -184,7 +184,7 @@ router.post('/login', async (req, res) => {
  *                 description: Nova senha desejada.
  *                 example: "novaSenha456"
  *     responses:
- *       200:
+ *       201:
  *         description: Senha atualizada com sucesso.
  *       400:
  *         description: Erro na validação ou senha incorreta.
@@ -228,7 +228,7 @@ router.put('/update-password', authenticate, async (req, res) => {
     user.password = newHashedPassword;
     await user.save(); // Atualiza a instância no banco de dados
 
-    res.status(200).json({ message: 'Senha atualizada com sucesso.' });
+    res.status(201).json({ message: 'Senha atualizada com sucesso.' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Erro ao atualizar a senha.' });

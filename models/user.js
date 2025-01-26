@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      deletado: {
+      inativo: {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0,

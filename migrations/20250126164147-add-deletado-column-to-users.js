@@ -2,8 +2,8 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // Adiciona a coluna 'deletado'
-    await queryInterface.addColumn('users', 'deletado', {
+    // Adiciona a coluna 'inativo'
+    await queryInterface.addColumn('users', 'inativo', {
       type: Sequelize.INTEGER,
       allowNull: false,
       defaultValue: 0,
@@ -25,7 +25,7 @@ module.exports = {
   },
   async down(queryInterface, Sequelize) {
     // Remove as colunas adicionadas
-    await queryInterface.removeColumn('users', 'deletado');
+    await queryInterface.removeColumn('users', 'inativo');
     await queryInterface.removeColumn('users', 'createdAt');
     await queryInterface.removeColumn('users', 'updatedAt');
   },
