@@ -10,7 +10,7 @@ Este projeto é uma API desenvolvida para ser consumida pelos seus testes automa
 - **Dotenv**: Gerenciamento de variáveis de ambiente.
 - **PostgreSQL**: Banco de dados relacional.
 - **Railway**: Hospedagem da API e banco de dados.
-- **Swagger**: Documentação da API com swagger
+- **Swagger**: Documentação da API com swagger.
 
 ## Endpoints Disponíveis até o momento
 
