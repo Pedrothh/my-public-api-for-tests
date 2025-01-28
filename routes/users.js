@@ -42,14 +42,6 @@ const { User } = require('../models'); // Importando o modelo User
  *                   inativo:
  *                     type: integer
  *                     description: Indica se o usuário está inativo (1) ou ativo (0).
- *                   createdAt:
- *                     type: string
- *                     format: date-time
- *                     description: Data de criação do usuário.
- *                   updatedAt:
- *                     type: string
- *                     format: date-time
- *                     description: Data de última atualização do usuário.
  *       401:
  *         description: Token não fornecido ou inválido.
  *       500:
@@ -60,7 +52,7 @@ router.get('/users', authenticate, async (req, res) => {
   try {
     // Busca todos os usuários, omitindo os inativos
     const users = await User.findAll({
-      attributes: ['id', 'username', 'inativo', 'createdAt', 'updatedAt'] // Seleciona somente os campos necessários
+      attributes: ['id', 'username', 'inativo'] // Seleciona somente os campos necessários
     });
     res.status(200).json(users);
   } catch (err) {
@@ -72,7 +64,7 @@ router.get('/users', authenticate, async (req, res) => {
 // Endpoint para buscar um usuário específico pelo ID
 /**
  * @swagger
- * /users/{id}:
+ * /user/{id}:
  *   get:
  *     summary: Retorna um usuário específico.
  *     tags: [Users]
@@ -103,14 +95,6 @@ router.get('/users', authenticate, async (req, res) => {
  *                 inativo:
  *                   type: integer
  *                   description: Indica se o usuário está inativo (1) ou ativo (0).
- *                 createdAt:
- *                   type: string
- *                   format: date-time
- *                   description: Data de criação do usuário.
- *                 updatedAt:
- *                   type: string
- *                   format: date-time
- *                   description: Data de última atualização do usuário.
  *       401:
  *         description: Token não fornecido ou inválido.
  *       404:
@@ -118,7 +102,7 @@ router.get('/users', authenticate, async (req, res) => {
  *       500:
  *         description: Erro no servidor.
  */
-router.get('/users/:id', authenticate, async (req, res) => {
+router.get('/user/:id', authenticate, async (req, res) => {
   const { id } = req.params; // Pega o parâmetro "id" do path parameter
 
   try {
@@ -130,7 +114,7 @@ router.get('/users/:id', authenticate, async (req, res) => {
     // Busca um usuário específico pelo ID, omitindo os inativos
     const user = await User.findOne({
       where: { id }, // Usuário ativo com o ID fornecido
-      attributes: ['id', 'username', 'inativo', 'createdAt', 'updatedAt'] // Seleciona somente os campos necessários
+      attributes: ['id', 'username', 'inativo'] // Seleciona somente os campos necessários
     });
 
     if (!user) {
@@ -147,7 +131,7 @@ router.get('/users/:id', authenticate, async (req, res) => {
 
 /**
  * @swagger
- * /user/{id}:
+ * /inativar-user/{id}:
  *   delete:
  *     summary: Inativar a conta do usuário
  *     description: Realiza a inativação da conta de um usuário, marcando a coluna "inativo" como 1.
@@ -199,7 +183,7 @@ router.get('/users/:id', authenticate, async (req, res) => {
  *       500:
  *         description: Erro no servidor.
  */
-router.delete('/user/:id', authenticate, async (req, res) => {
+router.delete('/inativar-user/:id', authenticate, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -214,6 +198,10 @@ router.delete('/user/:id', authenticate, async (req, res) => {
 
     if (!user) {
       return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    if (user.inativo === 1) {
+      return res.status(400).json({ message: 'Usuário já está inativo.' })
     }
 
     // Atualiza a coluna "inativo"
@@ -241,7 +229,7 @@ router.delete('/user/:id', authenticate, async (req, res) => {
  
 /**
  * @swagger
- * /user/{id}:
+ * /reativar-user/{id}:
  *   put:
  *     summary: Reativar a conta do usuário
  *     description: Realiza a inativação da conta de um usuário, marcando a coluna "inativo" como 0.
@@ -294,7 +282,7 @@ router.delete('/user/:id', authenticate, async (req, res) => {
  *         description: Erro no servidor
  */
 
-router.put('/user/:id', authenticate, async (req, res) => {
+router.put('/reativar-user/:id', authenticate, async (req, res) => {
   const { id } = req.params; // Extrai o ID do usuário do path parameter
   const parsedId = parseInt(id, 10); // Converte para número inteiro, garantindo que seja válido
 
@@ -335,6 +323,66 @@ router.put('/user/:id', authenticate, async (req, res) => {
   }
 });
 
-  
+/**
+ * @swagger
+ * /user/{id}:
+ *   delete:
+ *     summary: Exclui um usuário pelo ID.
+ *     description: Exclui um usuário da base de dados pelo ID. Apenas usuários autenticados podem realizar essa ação.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: O ID do usuário a ser excluído.
+ *     responses:
+ *       200:
+ *         description: Usuário excluído com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Usuário excluído com sucesso.
+ *       400:
+ *         description: O ID fornecido é inválido.
+ *       404:
+ *         description: Usuário não encontrado.
+ *       401:
+ *         description: Token não fornecido ou inválido.
+ *       500:
+ *         description: Erro interno do servidor.
+ */
+router.delete('/user/:id', authenticate, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Busca o usuário pelo ID  
+    const user = await User.findByPk(id); 
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    // Valida se o ID é um número
+    const parsedId = parseInt(id, 10);
+    if (isNaN(parsedId)) {
+      return res.status(400).json({ message: 'O ID fornecido deve ser um número válido.' });
+    }
+
+    // Exclui o usuário
+    await user.destroy();
+
+    res.status(204).json({ message: 'Usuário excluído com sucesso.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erro no servidor' });
+  }
+  });
 
 module.exports = router;
