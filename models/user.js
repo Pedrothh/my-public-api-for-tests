@@ -24,6 +24,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: 0,
       },
+      role: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 3, // 1 = Admin, 2 = Moderador, 3 = Usuário comum
+      },
     },
     {
       sequelize,

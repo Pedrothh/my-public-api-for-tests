@@ -6,6 +6,7 @@ const authenticate = require('../middleware/authenticate'); // Caminho para o mi
 const { User } = require('../models'); // Importando o modelo User
 const router = express.Router();
 const SECRET = process.env.JWT_SECRET; // Substitua por uma variável de ambiente em produção
+const authorizeRole = require('../middleware/authorizeRole');
 
 /**
  * @swagger
@@ -20,6 +21,8 @@ const SECRET = process.env.JWT_SECRET; // Substitua por uma variável de ambient
  *   post:
  *     summary: Registrar um novo usuário
  *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -55,7 +58,7 @@ const SECRET = process.env.JWT_SECRET; // Substitua por uma variável de ambient
  */
 
 // Criar um novo usuário
-router.post('/register', async (req, res) => {
+router.post('/register', authenticate, authorizeRole(1), async (req, res) => {
   const { username, password } = req.body;
 
   try {
@@ -131,25 +134,39 @@ router.post('/register', async (req, res) => {
  *         description: Erro no servidor
  */
 
-// Login de usuário
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    // Busca o usuário no banco
-    const user = await db.query('SELECT * FROM users WHERE username = $1', [username]);
-    if (user.rows.length === 0) {
-      return res.status(401).json({ message: 'Credenciais incorretas' });
+    // Busca o usuário no banco pelo Sequelize
+    const user = await User.findOne({ where: { username } });
+
+    // Verifica se o usuário existe
+    if (!user) {
+      return res.status(401).json({ message: 'Credenciais incorretas.' });
     }
 
     // Verifica a senha
-    const validPassword = await bcrypt.compare(password, user.rows[0].password);
+    const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
-      return res.status(401).json({ message: 'Credenciais incorretas' });
+      return res.status(401).json({ message: 'Credenciais incorretas.' });
     }
 
-    // Gera o token JWT
-    const token = jwt.sign({ id: user.rows[0].id, username: user.rows[0].username }, SECRET, { expiresIn: '1h' });
+    // Verifica se o usuário está inativo
+    if (user.inativo === 1) {
+      return res.status(400).json({ message: 'Usuário está inativo.' });
+    }
+
+    // Gera o token JWT com role
+    const token = jwt.sign(
+      {
+        id: user.id,
+        username: user.username,
+        role: user.role, // Incluindo a role no token
+      },
+      SECRET,
+      { expiresIn: '1h' }
+    );
 
     res.status(200).json({ token });
   } catch (err) {
@@ -157,6 +174,7 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Erro no servidor' });
   }
 });
+
 
   
 /**

@@ -58,7 +58,7 @@ router.get('/user-info', authenticate, async (req, res) => {
     // Busca as informações do usuário no banco de dados
     const user = await User.findOne({
       where: { id: userId },
-      attributes: ['id', 'username', 'inativo', 'createdAt', 'updatedAt'] // Seleciona somente os campos necessários
+      attributes: ['id', 'username', 'inativo', 'createdAt', 'updatedAt', 'role'] // Seleciona somente os campos necessários
     });
     if (!user) {
       return res.status(404).json({ message: 'Usuário não encontrado.' });

@@ -4,7 +4,7 @@ const authenticate = require('../middleware/authenticate'); // Caminho para o mi
 const db = require('../db'); // Importa a conexão com o banco
 const bcrypt = require('bcrypt');
 const { User } = require('../models'); // Importando o modelo User
-
+const authorizeRole = require('../middleware/authorizeRole');
 
 /**
  * @swagger
@@ -52,7 +52,7 @@ router.get('/users', authenticate, async (req, res) => {
   try {
     // Busca todos os usuários, omitindo os inativos
     const users = await User.findAll({
-      attributes: ['id', 'username', 'inativo'] // Seleciona somente os campos necessários
+      attributes: ['id', 'username', 'inativo', 'role'] // Seleciona somente os campos necessários
     });
     res.status(200).json(users);
   } catch (err) {
@@ -114,7 +114,7 @@ router.get('/user/:id', authenticate, async (req, res) => {
     // Busca um usuário específico pelo ID, omitindo os inativos
     const user = await User.findOne({
       where: { id }, // Usuário ativo com o ID fornecido
-      attributes: ['id', 'username', 'inativo'] // Seleciona somente os campos necessários
+      attributes: ['id', 'username', 'inativo', 'role'] // Seleciona somente os campos necessários
     });
 
     if (!user) {
@@ -183,7 +183,7 @@ router.get('/user/:id', authenticate, async (req, res) => {
  *       500:
  *         description: Erro no servidor.
  */
-router.delete('/inativar-user/:id', authenticate, async (req, res) => {
+router.delete('/inativar-user/:id', authenticate, authorizeRole(2), async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -282,7 +282,7 @@ router.delete('/inativar-user/:id', authenticate, async (req, res) => {
  *         description: Erro no servidor
  */
 
-router.put('/reativar-user/:id', authenticate, async (req, res) => {
+router.put('/reativar-user/:id', authenticate, authorizeRole(2), async (req, res) => {
   const { id } = req.params; // Extrai o ID do usuário do path parameter
   const parsedId = parseInt(id, 10); // Converte para número inteiro, garantindo que seja válido
 
@@ -329,6 +329,8 @@ router.put('/reativar-user/:id', authenticate, async (req, res) => {
  *   delete:
  *     summary: Exclui um usuário pelo ID.
  *     description: Exclui um usuário da base de dados pelo ID. Apenas usuários autenticados podem realizar essa ação.
+ *     tags:
+ *       - Users
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -358,7 +360,7 @@ router.put('/reativar-user/:id', authenticate, async (req, res) => {
  *       500:
  *         description: Erro interno do servidor.
  */
-router.delete('/user/:id', authenticate, async (req, res) => {
+router.delete('/user/:id', authenticate, authorizeRole(1), async (req, res) => {
   const { id } = req.params;
 
   try {
