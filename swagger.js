@@ -11,8 +11,8 @@ const swaggerOptions = {
       description: 'API com autenticação JWT e Swagger',
     },
     servers: [
-      { url: 'http://localhost:3000', description: 'Servidor local' },
-      { url: 'https://my-public-api-for-tests-production.up.railway.app', description: 'Servidor na Railway (Produção)' },
+      { url: 'http://localhost:3000/api', description: 'Servidor local' },
+      { url: 'https://my-public-api-for-tests-production.up.railway.app/api', description: 'Servidor na Railway (Produção)' },
     ],
     components: {
       securitySchemes: {

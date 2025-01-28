@@ -3,7 +3,7 @@ const express = require('express');
 const { swaggerUi, swaggerDocs } = require('./swagger');
 const usersRoutes = require('./routes/users');
 const usersInfoRoutes = require('./routes/userInfo');
-
+const path = require('path');
 const authRoutes = require('./routes/auth');  // Importando as rotas de autenticação
 
 const app = express();
@@ -11,8 +11,12 @@ const app = express();
 // Middleware
 app.use(express.json());
 
+app.use('/swagger-dark.css', express.static(path.join(__dirname, 'swagger-dark.css')));
+
 // Configuração do Swagger
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs, {
+  customCssUrl: '/swagger-dark.css',
+}));;
 
 // Rotas de autenticação
 app.use('/api', authRoutes);
