@@ -62,15 +62,15 @@ Este projeto é uma API desenvolvida para ser consumida pelos seus testes automa
 
 ## Implementações até o Momento:
 
-  Login gerando token JWT
-  Endpoints protegidos por autenticação (Token JWT)
-  Mudanças no banco de dados através de Migrations com sequelize
-  Endpoints protegidos por roles de acesso (admin/moderador/usuarios)
-  Integração com postgres
-  Separação de ambientes de Produção no Railway e Desenvolvimento (localhost)
-  Controle de usuários ativos e inativos, com bloqueio de login para usuários inativos
-  Controle de modificações em usuários (updatedAt)
-  Bonus: Swagger dark mode :D
+-  Login gerando token JWT
+-  Endpoints protegidos por autenticação (Token JWT)
+-  Mudanças no banco de dados através de Migrations com sequelize
+-  Endpoints protegidos por roles de acesso (admin/moderador/usuarios)
+-  Integração com postgres
+-  Separação de ambientes de Produção no Railway e Desenvolvimento (localhost)
+-  Controle de usuários ativos e inativos, com bloqueio de login para usuários inativos
+-  Controle de modificações em usuários (updatedAt)
+-  Bonus: Swagger dark mode :D
 
 
 ## Deploy no Railway
