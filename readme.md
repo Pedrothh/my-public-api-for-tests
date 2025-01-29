@@ -12,122 +12,6 @@ Este projeto é uma API desenvolvida para ser consumida pelos seus testes automa
 - **Railway**: Hospedagem da API e banco de dados.
 - **Swagger**: Documentação da API com swagger.
 
-## Endpoints Disponíveis até o momento
-
-### **1. Registrar Usuário**
-- **URL**: `/api/register`
-- **Método**: `POST`
-- **Descrição**: Registra um novo usuário no banco de dados.
-- **Body**:
-  ```json
-  {
-    "username": "string",
-    "password": "string"
-  }
-  ```
-- **Resposta**:
-  ```json
-  {
-    "message": "Usuário registrado com sucesso",
-    "id": 1,
-    "username": "username"
-  }
-  ```
-
----
-
-### **2. Login**
-- **URL**: `/api/login`
-- **Método**: `POST`
-- **Descrição**: Faz login de um usuário e retorna o token de autenticação.
-- **Body**:
-  ```json
-  {
-    "username": "string",
-    "password": "string"
-  }
-  ```
-- **Resposta**:
-  ```json
-  {
-    "token": "seu_token_jwt"
-  }
-  ```
-
----
-
-### **3. Informações do Usuário Autenticado**
-- **URL**: `/api/user-info`
-- **Método**: `GET`
-- **Descrição**: Retorna os dados do usuário autenticado.
-- **Cabeçalho**:
-  ```
-  Authorization: Bearer <seu_token_jwt>
-  ```
-- **Resposta**:
-  ```json
-  {
-    "id": 1,
-    "username": "username"
-  }
-  ```
-
----
-
-### **4. Buscar Usuários**
-- **URL**: `/api/users`
-- **Método**: `GET`
-- **Descrição**: Retorna todos os usuários ou um usuário específico com base no parâmetro `id`. Necessita autenticação.
-- **Parâmetros de Query (opcional)**:
-  - `id`: ID do usuário a ser buscado.
-- **Cabeçalho**:
-  ```
-  Authorization: Bearer <seu_token_jwt>
-  ```
-- **Resposta** (todos os usuários):
-  ```json
-  [
-    {
-      "id": 1,
-      "username": "username1"
-    },
-    {
-      "id": 2,
-      "username": "username2"
-    }
-  ]
-  ```
-- **Resposta** (usuário específico):
-  ```json
-  {
-    "id": 1,
-    "username": "username1"
-  }
-  ```
-
----
-
-### **5. Atualizar Senha**
-- **URL**: `/api/update-password`
-- **Método**: `PUT`
-- **Descrição**: Permite que o usuário autenticado atualize sua senha.
-- **Cabeçalho**:
-  ```
-  Authorization: Bearer <seu_token_jwt>
-  ```
-- **Body**:
-  ```json
-  {
-    "currentPassword": "string",
-    "newPassword": "string"
-  }
-  ```
-- **Resposta**:
-  ```json
-  {
-    "message": "Senha atualizada com sucesso."
-  }
-  ```
 
 ## Configuração do Projeto
 
@@ -137,25 +21,62 @@ Este projeto é uma API desenvolvida para ser consumida pelos seus testes automa
    ```
 
 2. Instale as dependências:
+  Versão do node utilizada: 18.16.1
    ```bash
    npm install
    ```
 
 3. Crie um arquivo `.env` com as seguintes variáveis de ambiente:
-   ```env
-   DATABASE_URL="postgres://<user>:<password>@<host>:<port>/<database>"
-   JWT_SECRET="<seu_segredo_jwt>"
-   NODE_ENV="production"
-   ```
+  ```env
+  #NODE_ENV=development
+  NODE_ENV=production
+
+  DATABASE_URL=postgres://<user>:<password>@<host>:<port>/<database>
+  DATABASE_URL_DEV=postgres://<user>:<password>@<host>:<port>/<database>
+
+  JWT_SECRET="<seu_segredo_jwt>"
+
+  DB_PROD_USER=<user>
+  DB_PROD_PASSWORD=<password>
+  DB_PROD_NAME=<database>
+  DB_PROD_HOST=<host>
+  DB_PROD_PORT=<port>
+
+  DB_DEV_USER=<user>
+  DB_DEV_PASSWORD=<password>
+  DB_DEV_NAME=<database>
+  DB_DEV_HOST=<host>
+  DB_DEV_PORT=<port>
+  ```
 
 4. Inicie o servidor:
    ```bash
    npm start
    ```
+  
+5. Execute as migrations no banco:
+   ```bash
+   npx sequelize-cli db:migrate
+   ```
+  
+
+## Implementações até o Momento:
+
+-  Login gerando token JWT
+-  Endpoints protegidos por autenticação (Token JWT)
+-  Mudanças no banco de dados através de Migrations com sequelize
+-  Endpoints protegidos por roles de acesso (admin/moderador/usuarios)
+-  Integração com postgres
+-  Separação de ambientes de Produção no Railway e Desenvolvimento (localhost)
+-  Controle de usuários ativos e inativos, com bloqueio de login para usuários inativos
+-  Controle de modificações em usuários (updatedAt)
+-  Bonus: Swagger dark mode :D
+
 
 ## Deploy no Railway
 
 Esta API está hospedada no Railway, com integração ao banco de dados PostgreSQL para facilitar o desenvolvimento e os testes automatizados.
+
 
 ## Contribuição
 
