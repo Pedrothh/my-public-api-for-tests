@@ -4,7 +4,6 @@ const cors = require('cors'); // Importa o pacote cors
 const { swaggerUi, swaggerDocs } = require('./swagger');
 const usersRoutes = require('./routes/users');
 const usersInfoRoutes = require('./routes/userInfo');
-const path = require('path');
 const authRoutes = require('./routes/auth');  // Importando as rotas de autenticação
 
 const app = express();
@@ -19,11 +18,19 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'], // Cabeçalhos permitidos
 }));
 
-app.use('/swagger-dark.css', express.static(path.join(__dirname, 'swagger-dark.css')));
 
 // Configuração do Swagger
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs, {
-  customCssUrl: '/swagger-dark.css',
+app.get('/api-docs/swagger.json', (req, res) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  res.json(swaggerDocs);
+});
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, {
+  swaggerOptions: {
+    url: '/api-docs/swagger.json',
+  },
 }));
 
 // Rotas de autenticação
@@ -39,9 +46,13 @@ app.get('/', (req, res) => {
   res.send('Bem-vindo à API!');
 });
 
-// Porta do servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
-  console.log(`Documentação disponível em http://localhost:${PORT}/api-docs`);
-});
+module.exports = app;
+
+if (process.env.VERCEL !== '1') {
+  // Porta do servidor
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
+    console.log(`Documentação disponível em http://localhost:${PORT}/api-docs`);
+  });
+}
