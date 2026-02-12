@@ -78,6 +78,39 @@ Este projeto é uma API desenvolvida para ser consumida pelos seus testes automa
 Esta API está hospedada no Railway, com integração ao banco de dados PostgreSQL para facilitar o desenvolvimento e os testes automatizados.
 
 
+
+## Deploy no Vercel
+
+Este projeto já está pronto para deploy no Vercel com suporte à API Express em modo serverless.
+
+1. Instale a CLI do Vercel (opcional):
+   ```bash
+   npm i -g vercel
+   ```
+
+2. Faça login na sua conta:
+   ```bash
+   vercel login
+   ```
+
+3. No diretório do projeto, execute:
+   ```bash
+   vercel
+   ```
+
+4. Configure as variáveis de ambiente no painel do Vercel (Project > Settings > Environment Variables):
+   - `NODE_ENV=production`
+   - `DATABASE_URL`
+   - `JWT_SECRET`
+   - (se usar) demais variáveis `DB_PROD_*`
+
+5. Para publicar em produção:
+   ```bash
+   vercel --prod
+   ```
+
+Após o deploy, sua documentação continua disponível em `/api-docs`.
+
 ## Contribuição
 
 Sinta-se à vontade para abrir issues ou pull requests para melhorar este projeto.
