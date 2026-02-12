@@ -4,7 +4,6 @@ const cors = require('cors'); // Importa o pacote cors
 const { swaggerUi, swaggerDocs } = require('./swagger');
 const usersRoutes = require('./routes/users');
 const usersInfoRoutes = require('./routes/userInfo');
-const path = require('path');
 const authRoutes = require('./routes/auth');  // Importando as rotas de autenticação
 
 const app = express();
@@ -19,12 +18,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'], // Cabeçalhos permitidos
 }));
 
-app.use('/swagger-dark.css', express.static(path.join(__dirname, 'swagger-dark.css')));
 
 // Configuração do Swagger
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs, {
-  customCssUrl: '/swagger-dark.css',
-}));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Rotas de autenticação
 app.use('/api', authRoutes);
