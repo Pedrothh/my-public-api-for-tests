@@ -39,9 +39,13 @@ app.get('/', (req, res) => {
   res.send('Bem-vindo à API!');
 });
 
-// Porta do servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
-  console.log(`Documentação disponível em http://localhost:${PORT}/api-docs`);
-});
+module.exports = app;
+
+if (process.env.VERCEL !== '1') {
+  // Porta do servidor
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
+    console.log(`Documentação disponível em http://localhost:${PORT}/api-docs`);
+  });
+}
