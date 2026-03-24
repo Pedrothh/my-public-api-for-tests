@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { getJwtSecret } = require('../config/jwtSecret');
 
 const authenticate = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -9,8 +10,7 @@ const authenticate = (req, res, next) => {
   }
 
   try {
-    // Substitua 'seu_segredo' pelo segredo usado para assinar os tokens
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, getJwtSecret());
     req.user = decoded; // Adiciona o payload do token ao req.user
     next();
   } catch (error) {
