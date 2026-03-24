@@ -1,11 +1,10 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const db = require('../db'); // Importa a conexão com o banco
 const authenticate = require('../middleware/authenticate'); // Caminho para o middleware
-const { User } = require('../models'); // Importando o modelo User
+const { User } = require('../data/userStore');
+const { getJwtSecret } = require('../config/jwtSecret');
 const router = express.Router();
-const SECRET = process.env.JWT_SECRET; // Substitua por uma variável de ambiente em produção
 const authorizeRole = require('../middleware/authorizeRole');
 
 /**
@@ -164,7 +163,7 @@ router.post('/login', async (req, res) => {
         username: user.username,
         role: user.role, // Incluindo a role no token
       },
-      SECRET,
+      getJwtSecret(),
       { expiresIn: '1h' }
     );
 
@@ -202,7 +201,7 @@ router.post('/login', async (req, res) => {
  *                 description: Nova senha desejada.
  *                 example: "novaSenha456"
  *     responses:
- *       201:
+ *       200:
  *         description: Senha atualizada com sucesso.
  *       400:
  *         description: Erro na validação ou senha incorreta.
@@ -246,7 +245,7 @@ router.put('/update-password', authenticate, async (req, res) => {
     user.password = newHashedPassword;
     await user.save(); // Atualiza a instância no banco de dados
 
-    res.status(201).json({ message: 'Senha atualizada com sucesso.' });
+    res.status(200).json({ message: 'Senha atualizada com sucesso.' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Erro ao atualizar a senha.' });

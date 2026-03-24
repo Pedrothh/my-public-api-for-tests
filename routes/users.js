@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authenticate = require('../middleware/authenticate'); // Caminho para o middleware
-const db = require('../db'); // Importa a conexão com o banco
-const bcrypt = require('bcrypt');
-const { User } = require('../models'); // Importando o modelo User
+const { User } = require('../data/userStore');
 const authorizeRole = require('../middleware/authorizeRole');
 
 /**
@@ -107,13 +105,14 @@ router.get('/user/:id', authenticate, async (req, res) => {
 
   try {
     // Validação de ID
-    if (isNaN(parseInt(id))) {
+    const parsedId = parseInt(id, 10);
+    if (isNaN(parsedId)) {
       return res.status(400).json({ message: 'O ID deve ser um número válido.' });
     }
 
     // Busca um usuário específico pelo ID, omitindo os inativos
     const user = await User.findOne({
-      where: { id }, // Usuário ativo com o ID fornecido
+      where: { id: parsedId }, // Usuário com o ID fornecido
       attributes: ['id', 'username', 'inativo', 'role'] // Seleciona somente os campos necessários
     });
 
@@ -364,23 +363,23 @@ router.delete('/user/:id', authenticate, authorizeRole(1), async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Busca o usuário pelo ID  
-    const user = await User.findByPk(id); 
-
-    if (!user) {
-      return res.status(404).json({ message: 'Usuário não encontrado.' });
-    }
-
     // Valida se o ID é um número
     const parsedId = parseInt(id, 10);
     if (isNaN(parsedId)) {
       return res.status(400).json({ message: 'O ID fornecido deve ser um número válido.' });
     }
 
+    // Busca o usuário pelo ID
+    const user = await User.findByPk(parsedId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
     // Exclui o usuário
     await user.destroy();
 
-    res.status(204).json({ message: 'Usuário excluído com sucesso.' });
+    res.status(200).json({ message: 'Usuário excluído com sucesso.' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Erro no servidor' });

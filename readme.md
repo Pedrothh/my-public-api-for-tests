@@ -1,6 +1,6 @@
 # API para Testes Automatizados
 
-Este projeto é uma API desenvolvida para ser consumida pelos seus testes automatizados. Ela permite a criação, autenticação, consulta e atualização de dados de usuários. A API utiliza tecnologias modernas e está integrada ao banco de dados PostgreSQL hospedado no Railway.
+Este projeto é uma API desenvolvida para ser consumida pelos seus testes automatizados. Ela permite a criação, autenticação, consulta e atualização de dados de usuários. Agora a API roda sem banco de dados, usando armazenamento em memória.
 
 ## Tecnologias Utilizadas
 
@@ -8,8 +8,7 @@ Este projeto é uma API desenvolvida para ser consumida pelos seus testes automa
 - **Express**: Framework para a construção de APIs.
 - **JWT (Json Web Token)**: Gerenciamento de autenticação e controle de acesso.
 - **Dotenv**: Gerenciamento de variáveis de ambiente.
-- **PostgreSQL**: Banco de dados relacional.
-- **Railway**: Hospedagem da API e banco de dados.
+- **Armazenamento em memória**: Dados mantidos enquanto a API está em execução.
 - **Swagger**: Documentação da API com swagger.
 
 
@@ -28,25 +27,9 @@ Este projeto é uma API desenvolvida para ser consumida pelos seus testes automa
 
 3. Crie um arquivo `.env` com as seguintes variáveis de ambiente:
   ```env
-  #NODE_ENV=development
-  NODE_ENV=production
-
-  DATABASE_URL=postgres://<user>:<password>@<host>:<port>/<database>
-  DATABASE_URL_DEV=postgres://<user>:<password>@<host>:<port>/<database>
-
   JWT_SECRET="<seu_segredo_jwt>"
-
-  DB_PROD_USER=<user>
-  DB_PROD_PASSWORD=<password>
-  DB_PROD_NAME=<database>
-  DB_PROD_HOST=<host>
-  DB_PROD_PORT=<port>
-
-  DB_DEV_USER=<user>
-  DB_DEV_PASSWORD=<password>
-  DB_DEV_NAME=<database>
-  DB_DEV_HOST=<host>
-  DB_DEV_PORT=<port>
+  DEFAULT_ADMIN_USERNAME=admin
+  DEFAULT_ADMIN_PASSWORD=admin1234
   ```
 
 4. Inicie o servidor:
@@ -54,28 +37,14 @@ Este projeto é uma API desenvolvida para ser consumida pelos seus testes automa
    npm start
    ```
   
-5. Execute as migrations no banco:
-   ```bash
-   npx sequelize-cli db:migrate
-   ```
-  
-
 ## Implementações até o Momento:
 
 -  Login gerando token JWT
 -  Endpoints protegidos por autenticação (Token JWT)
--  Mudanças no banco de dados através de Migrations com sequelize
 -  Endpoints protegidos por roles de acesso (admin/moderador/usuarios)
--  Integração com postgres
--  Separação de ambientes de Produção no Railway e Desenvolvimento (localhost)
+-  API sem dependência de banco de dados externo
 -  Controle de usuários ativos e inativos, com bloqueio de login para usuários inativos
 -  Controle de modificações em usuários (updatedAt)
--  Bonus: Swagger dark mode :D
-
-
-## Deploy no Railway
-
-Esta API está hospedada no Railway, com integração ao banco de dados PostgreSQL para facilitar o desenvolvimento e os testes automatizados.
 
 
 ## Contribuição

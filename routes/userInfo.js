@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authenticate = require('../middleware/authenticate'); // Middleware de autenticação
-const db = require('../db'); // Importa a conexão com o banco
-const { User } = require('../models'); // Importando o modelo User
+const { User } = require('../data/userStore');
 
 /**
  * @swagger
