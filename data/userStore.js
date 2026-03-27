@@ -68,8 +68,8 @@ const pickAttributes = (user, attributes) => {
 const asRecord = (user) => (user ? new UserRecord(user) : null);
 
 const seedDefaultAdmin = () => {
-  const adminUsername = process.env.DEFAULT_ADMIN_USERNAME || 'admin';
-  const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'admin1234';
+  const adminUsername = process.env.DEFAULT_ADMIN_USERNAME;
+  const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD;
   const passwordHash = bcrypt.hashSync(adminPassword, 10);
   const now = new Date();
 
@@ -85,6 +85,25 @@ const seedDefaultAdmin = () => {
 };
 
 seedDefaultAdmin();
+
+const seedDefaultUser = () => {
+  const userUsername = process.env.DEFAULT_USER_USERNAME;
+  const userPassword = process.env.DEFAULT_USER_PASSWORD;
+  const passwordHash = bcrypt.hashSync(userPassword, 10);
+  const now = new Date();
+
+  users.push({
+    id: nextId++,
+    username: userUsername,
+    password: passwordHash,
+    inativo: 0,
+    role: 3,
+    createdAt: now,
+    updatedAt: now,
+  });
+};
+
+seedDefaultUser();
 
 const User = {
   async findOne(options = {}) {
